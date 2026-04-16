@@ -114,6 +114,8 @@ int index_load(Index *index) {
     index->count = 0;
 
     FILE *f = fopen(".pes/index", "r");
+
+    // 🔴 FIX: if file doesn't exist → EMPTY INDEX
     if (!f) return 0;
 
     while (index->count < MAX_INDEX_ENTRIES) {
