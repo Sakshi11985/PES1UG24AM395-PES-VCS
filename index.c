@@ -107,30 +107,39 @@ int index_status(const Index *index) {
     return 0;
 }
 
-// ─── IMPLEMENTATION ──────────────────────────────────────────────────────────
+// ─── FIXED IMPLEMENTATION ─────────────────────────────────────────────────────
 
+// 🔥 FIXED: robust loading (never fails for empty/missing index)
 int index_load(Index *index) {
 
     index->count = 0;
 
     FILE *f = fopen(".pes/index", "r");
+    if (!f) return 0;   // no file → empty index
 
-    // 🔴 FIX: if file doesn't exist → EMPTY INDEX
-    if (!f) return 0;
+    char line[1024];
 
-    while (index->count < MAX_INDEX_ENTRIES) {
+    while (fgets(line, sizeof(line), f)) {
+
+        if (index->count >= MAX_INDEX_ENTRIES)
+            break;
 
         IndexEntry *e = &index->entries[index->count];
 
-        if (fscanf(f, "%o %64s %ld %zu %[^\n]",
-                   &e->mode,
-                   e->hash_hex,
-                   &e->mtime_sec,
-                   &e->size,
-                   e->path) != 5)
-            break;
+        char hash_hex[HASH_HEX_SIZE + 1];
 
-        hex_to_hash(e->hash_hex, &e->id);
+        int ret = sscanf(line, "%o %64s %ld %zu %[^\n]",
+                         &e->mode,
+                         hash_hex,
+                         &e->mtime_sec,
+                         &e->size,
+                         e->path);
+
+        if (ret != 5)
+            continue;  // skip bad lines
+
+        if (hex_to_hash(hash_hex, &e->id) != 0)
+            continue;
 
         index->count++;
     }
@@ -139,12 +148,12 @@ int index_load(Index *index) {
     return 0;
 }
 
-
+// sort helper
 static int compare_entries(const void *a, const void *b) {
     return strcmp(((IndexEntry *)a)->path, ((IndexEntry *)b)->path);
 }
 
-
+// save index atomically
 int index_save(const Index *index) {
 
     Index sorted = *index;
@@ -177,7 +186,7 @@ int index_save(const Index *index) {
     return 0;
 }
 
-
+// stage file
 int index_add(Index *index, const char *path) {
 
     struct stat st;
