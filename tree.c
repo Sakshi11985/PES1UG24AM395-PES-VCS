@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// SIMPLE WORKING VERSION MATCHING YOUR HEADERS
-
 int tree_from_index(ObjectID *id_out) {
 
     Index index;
@@ -22,11 +20,11 @@ int tree_from_index(ObjectID *id_out) {
 
         entry->mode = ie->mode;
 
-        // copy filename
+        // copy file name
         strcpy(entry->name, ie->path);
 
-        // convert hash string → ObjectID
-        hex_to_hash(ie->hash_hex, &entry->hash);
+        // ✅ CORRECT LINE (THIS FIXES YOUR ERROR)
+        entry->hash = ie->hash;
 
         tree.count++;
     }
