@@ -32,8 +32,6 @@ int cmd_init() {
 int cmd_add(int argc, char *argv[]) {
 
     Index index;
-
-    // 🔥 FIX: do NOT fail if index_load has issue
     index_load(&index);
 
     for (int i = 2; i < argc; i++) {
@@ -56,8 +54,6 @@ int cmd_add(int argc, char *argv[]) {
 int cmd_status() {
 
     Index index;
-
-    // 🔥 FIX: ignore load failure
     index_load(&index);
 
     return index_status(&index);
@@ -67,14 +63,16 @@ int cmd_status() {
 // Commit
 int cmd_commit(int argc, char *argv[]) {
 
-    if (argc < 3 || strcmp(argv[2], "-m") != 0 || argc < 4) {
+    if (argc < 4 || strcmp(argv[2], "-m") != 0) {
         fprintf(stderr, "usage: pes commit -m \"message\"\n");
         return -1;
     }
 
     const char *message = argv[3];
 
-    if (commit_create(message) != 0) {
+    ObjectID commit_id;   // ✅ FIX
+
+    if (commit_create(message, &commit_id) != 0) {   // ✅ FIX
         fprintf(stderr, "error: commit failed\n");
         return -1;
     }
@@ -85,7 +83,7 @@ int cmd_commit(int argc, char *argv[]) {
 
 // Log
 int cmd_log() {
-    return commit_walk();
+    return commit_walk(NULL, NULL);   // ✅ FIX
 }
 
 
