@@ -1,22 +1,32 @@
+#include "tree.h"
+#include "index.h"
 #include "pes.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// SIMPLE WORKING VERSION MATCHING YOUR HEADERS
+
 int tree_from_index(ObjectID *id_out) {
 
-    Index idx;
-    index_load(&idx);
+    Index index;
+    index_load(&index);
 
     Tree tree;
     tree.count = 0;
 
-    for (int i = 0; i < idx.count; i++) {
+    for (int i = 0; i < index.count; i++) {
 
-        TreeEntry *t = &tree.entries[tree.count];
-        IndexEntry *e = &idx.entries[i];
+        TreeEntry *entry = &tree.entries[tree.count];
+        IndexEntry *ie = &index.entries[i];
 
-        t->mode = e->mode;
-        strcpy(t->name, e->path);
+        entry->mode = ie->mode;
 
-        // 🔥 FIX: convert hex → ObjectID
-        hex_to_hash(e->hash_hex, &t->hash);
+        // copy filename
+        strcpy(entry->name, ie->path);
+
+        // convert hash string → ObjectID
+        hex_to_hash(ie->hash_hex, &entry->hash);
 
         tree.count++;
     }
