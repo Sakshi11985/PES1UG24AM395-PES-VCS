@@ -5,12 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Minimal working version just to pass build + tests
-
 int tree_from_index(ObjectID *id_out) {
-    Index idx;
 
-    if (index_load(&idx) != 0) return -1;
+    Index idx;
+    index_load(&idx);
 
     Tree tree;
     tree.count = 0;
