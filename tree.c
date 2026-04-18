@@ -1,10 +1,3 @@
-#include "tree.h"
-#include "index.h"
-#include "pes.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 int tree_from_index(ObjectID *id_out) {
 
     Index idx;
@@ -14,12 +7,15 @@ int tree_from_index(ObjectID *id_out) {
     tree.count = 0;
 
     for (int i = 0; i < idx.count; i++) {
+
         TreeEntry *t = &tree.entries[tree.count];
         IndexEntry *e = &idx.entries[i];
 
         t->mode = e->mode;
         strcpy(t->name, e->path);
-        t->hash = e->id;
+
+        // 🔥 FIX: convert hex → ObjectID
+        hex_to_hash(e->hash_hex, &t->hash);
 
         tree.count++;
     }
