@@ -1,3 +1,5 @@
+// tree.c — Tree object implementation
+
 #include "tree.h"
 #include "index.h"
 #include "object.h"
@@ -14,7 +16,7 @@ static int entry_cmp(const void *a, const void *b) {
 }
 
 // Serialize a Tree into raw bytes:
-// Each entry is packed as:  [mode: 4 bytes][name: null-terminated][hash: sizeof(ObjectID)]
+// Each entry is packed as: [mode: 4 bytes][name: null-terminated][hash: sizeof(ObjectID)]
 int tree_serialize(const Tree *tree, void **data_out, size_t *len_out) {
     if (!tree || !data_out || !len_out) return -1;
 
@@ -25,9 +27,9 @@ int tree_serialize(const Tree *tree, void **data_out, size_t *len_out) {
     // Calculate total buffer size
     size_t total = 0;
     for (int i = 0; i < sorted.count; i++) {
-        total += sizeof(uint32_t);              // mode
-        total += strlen(sorted.entries[i].name) + 1;  // name + '\0'
-        total += sizeof(ObjectID);              // hash
+        total += sizeof(uint32_t);                        // mode
+        total += strlen(sorted.entries[i].name) + 1;     // name + '\0'
+        total += sizeof(ObjectID);                        // hash
     }
 
     uint8_t *buf = malloc(total);
@@ -37,7 +39,7 @@ int tree_serialize(const Tree *tree, void **data_out, size_t *len_out) {
     for (int i = 0; i < sorted.count; i++) {
         TreeEntry *e = &sorted.entries[i];
 
-        // Write mode (4 bytes, big-endian style raw copy)
+        // Write mode (4 bytes)
         memcpy(ptr, &e->mode, sizeof(uint32_t));
         ptr += sizeof(uint32_t);
 
